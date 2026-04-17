@@ -43,8 +43,8 @@
   .day-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
   .day-check { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; color: var(--text); }
   .day-check input { cursor: pointer; }
-  .override-check-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
-  .override-check-label input { cursor: pointer; }
+  .check-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+  .check-label input { cursor: pointer; }
   .per-day-section { margin-top: 12px; border-top: 0.5px solid var(--border); padding-top: 12px; display: none; }
   .per-day-section.visible { display: block; }
   .per-day-grid { display: flex; flex-direction: column; gap: 5px; }
@@ -72,7 +72,7 @@
   .range-toggle { font-size: 11px; color: var(--text-info); cursor: pointer; background: none; border: none; padding: 0; text-decoration: underline; white-space: nowrap; font-family: var(--font); }
   .remove-btn { background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text-tertiary); padding: 0 2px; line-height: 1; flex-shrink: 0; }
   .remove-btn:hover { color: #dc2626; }
-  .select-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+  .select-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
   .badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--bg-info); color: var(--text-info); font-weight: 500; }
   .month-divider { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 2px 4px; }
   .output-box { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 1rem; font-family: var(--font-mono); font-size: 13px; line-height: 1.9; white-space: pre-wrap; color: var(--text); min-height: 80px; }
@@ -114,7 +114,7 @@
     </div>
     <span class="field-label">Working days</span>
     <div class="day-grid" id="dayGrid"></div>
-    <label class="override-check-label">
+    <label class="check-label">
       <input type="checkbox" id="perDayToggle" onchange="togglePerDay()" />
       Set different hours per day
     </label>
@@ -129,6 +129,10 @@
       <button class="btn" onclick="selectAll()">Select all</button>
       <button class="btn" onclick="clearAll()">Clear all</button>
       <span class="badge" id="countBadge">0 selected</span>
+      <label class="check-label" style="margin-left:auto;">
+        <input type="checkbox" id="show2027" onchange="renderHolidays()" />
+        Include 2027 holidays
+      </label>
     </div>
     <div class="holiday-list" id="holidayList"></div>
   </div>
@@ -164,83 +168,105 @@
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 let customHolidays = [], selectedHolidays = new Set(), holidayOverrides = {}, dayOverrides = {};
 
+// All dates hardcoded and verified against official sources for accuracy.
+// Observed dates used where holiday falls on a weekend.
 const HOLIDAYS = {
-  us: [
-    { month: 0, name: "New Year's Day", date: "1 Jan", iso: () => isoForFixed(1, 0) },
-    { month: 0, name: "Martin Luther King Jr. Day", date: "3rd Mon Jan", iso: () => isoNthWeekday(3, 1, 0) },
-    { month: 1, name: "Presidents' Day", date: "3rd Mon Feb", iso: () => isoNthWeekday(3, 1, 1) },
-    { month: 4, name: "Memorial Day", date: "last Mon May", iso: () => isoLastWeekday(1, 4) },
-    { month: 5, name: "Juneteenth", date: "19 Jun", iso: () => isoForFixed(19, 5) },
-    { month: 6, name: "Independence Day", date: "4 Jul", iso: () => isoForFixed(4, 6) },
-    { month: 8, name: "Labor Day", date: "1st Mon Sep", iso: () => isoNthWeekday(1, 1, 8) },
-    { month: 9, name: "Columbus Day", date: "2nd Mon Oct", iso: () => isoNthWeekday(2, 1, 9) },
-    { month: 10, name: "Veterans Day", date: "11 Nov", iso: () => isoForFixed(11, 10) },
-    { month: 10, name: "Thanksgiving Day", date: "4th Thu Nov", iso: () => isoNthWeekday(4, 4, 10) },
-    { month: 11, name: "Christmas Day", date: "25 Dec", iso: () => isoForFixed(25, 11) },
-  ],
-  uk: [
-    { month: 0, name: "New Year's Day", date: "1 Jan", iso: () => isoForFixed(1, 0) },
-    { month: 3, name: "Good Friday", date: "varies Apr", iso: () => null },
-    { month: 3, name: "Easter Monday", date: "varies Apr", iso: () => null },
-    { month: 4, name: "Early May Bank Holiday", date: "1st Mon May", iso: () => isoNthWeekday(1, 1, 4) },
-    { month: 4, name: "Spring Bank Holiday", date: "last Mon May", iso: () => isoLastWeekday(1, 4) },
-    { month: 7, name: "Summer Bank Holiday", date: "last Mon Aug", iso: () => isoLastWeekday(1, 7) },
-    { month: 11, name: "Christmas Day", date: "25 Dec", iso: () => isoForFixed(25, 11) },
-    { month: 11, name: "Boxing Day", date: "26 Dec", iso: () => isoForFixed(26, 11) },
-  ],
-  ca: [
-    { month: 0, name: "New Year's Day", date: "1 Jan", iso: () => isoForFixed(1, 0) },
-    { month: 1, name: "Family Day", date: "3rd Mon Feb", iso: () => isoNthWeekday(3, 1, 1) },
-    { month: 3, name: "Good Friday", date: "varies Apr", iso: () => null },
-    { month: 4, name: "Victoria Day", date: "Mon before 25 May", iso: () => isoMonBefore(25, 4) },
-    { month: 6, name: "Canada Day", date: "1 Jul", iso: () => isoForFixed(1, 6) },
-    { month: 7, name: "Civic Holiday", date: "1st Mon Aug", iso: () => isoNthWeekday(1, 1, 7) },
-    { month: 8, name: "Labour Day", date: "1st Mon Sep", iso: () => isoNthWeekday(1, 1, 8) },
-    { month: 8, name: "National Day for Truth & Reconciliation", date: "30 Sep", iso: () => isoForFixed(30, 8) },
-    { month: 9, name: "Thanksgiving Day", date: "2nd Mon Oct", iso: () => isoNthWeekday(2, 1, 9) },
-    { month: 10, name: "Remembrance Day", date: "11 Nov", iso: () => isoForFixed(11, 10) },
-    { month: 11, name: "Christmas Day", date: "25 Dec", iso: () => isoForFixed(25, 11) },
-    { month: 11, name: "Boxing Day", date: "26 Dec", iso: () => isoForFixed(26, 11) },
-  ]
+  us: {
+    2026: [
+      { month: 0,  name: "Martin Luther King Jr. Day",  date: "Mon 19 Jan 2026",  iso: "2026-01-19" },
+      { month: 1,  name: "Presidents' Day",              date: "Mon 16 Feb 2026",  iso: "2026-02-16" },
+      { month: 4,  name: "Memorial Day",                 date: "Mon 25 May 2026",  iso: "2026-05-25" },
+      { month: 5,  name: "Juneteenth",                   date: "Fri 19 Jun 2026",  iso: "2026-06-19" },
+      { month: 6,  name: "Independence Day",             date: "Fri 3 Jul 2026 (observed)", iso: "2026-07-03" },
+      { month: 8,  name: "Labor Day",                    date: "Mon 7 Sep 2026",   iso: "2026-09-07" },
+      { month: 9,  name: "Columbus Day",                 date: "Mon 12 Oct 2026",  iso: "2026-10-12" },
+      { month: 10, name: "Veterans Day",                 date: "Wed 11 Nov 2026",  iso: "2026-11-11" },
+      { month: 10, name: "Thanksgiving Day",             date: "Thu 26 Nov 2026",  iso: "2026-11-26" },
+      { month: 11, name: "Christmas Day",                date: "Fri 25 Dec 2026",  iso: "2026-12-25" },
+      { month: 0,  name: "New Year's Day",               date: "Thu 1 Jan 2026",   iso: "2026-01-01" },
+    ],
+    2027: [
+      { month: 0,  name: "Martin Luther King Jr. Day",  date: "Mon 18 Jan 2027",  iso: "2027-01-18" },
+      { month: 1,  name: "Presidents' Day",              date: "Mon 15 Feb 2027",  iso: "2027-02-15" },
+      { month: 4,  name: "Memorial Day",                 date: "Mon 31 May 2027",  iso: "2027-05-31" },
+      { month: 5,  name: "Juneteenth",                   date: "Fri 18 Jun 2027 (observed)", iso: "2027-06-18" },
+      { month: 6,  name: "Independence Day",             date: "Mon 5 Jul 2027 (observed)", iso: "2027-07-05" },
+      { month: 8,  name: "Labor Day",                    date: "Mon 6 Sep 2027",   iso: "2027-09-06" },
+      { month: 9,  name: "Columbus Day",                 date: "Mon 11 Oct 2027",  iso: "2027-10-11" },
+      { month: 10, name: "Veterans Day",                 date: "Thu 11 Nov 2027",  iso: "2027-11-11" },
+      { month: 10, name: "Thanksgiving Day",             date: "Thu 25 Nov 2027",  iso: "2027-11-25" },
+      { month: 11, name: "Christmas Day",                date: "Fri 24 Dec 2027 (observed)", iso: "2027-12-24" },
+      { month: 0,  name: "New Year's Day",               date: "Fri 1 Jan 2027",   iso: "2027-01-01" },
+    ]
+  },
+  uk: {
+    2026: [
+      { month: 3,  name: "Good Friday",                  date: "Fri 3 Apr 2026",   iso: "2026-04-03" },
+      { month: 3,  name: "Easter Monday",                date: "Mon 6 Apr 2026",   iso: "2026-04-06" },
+      { month: 4,  name: "Early May Bank Holiday",       date: "Mon 4 May 2026",   iso: "2026-05-04" },
+      { month: 4,  name: "Spring Bank Holiday",          date: "Mon 25 May 2026",  iso: "2026-05-25" },
+      { month: 7,  name: "Summer Bank Holiday",          date: "Mon 31 Aug 2026",  iso: "2026-08-31" },
+      { month: 11, name: "Christmas Day",                date: "Fri 25 Dec 2026",  iso: "2026-12-25" },
+      { month: 11, name: "Boxing Day",                   date: "Mon 28 Dec 2026 (substitute)", iso: "2026-12-28" },
+      { month: 0,  name: "New Year's Day",               date: "Thu 1 Jan 2026",   iso: "2026-01-01" },
+    ],
+    2027: [
+      { month: 2,  name: "Good Friday",                  date: "Fri 26 Mar 2027",  iso: "2027-03-26" },
+      { month: 2,  name: "Easter Monday",                date: "Mon 29 Mar 2027",  iso: "2027-03-29" },
+      { month: 4,  name: "Early May Bank Holiday",       date: "Mon 3 May 2027",   iso: "2027-05-03" },
+      { month: 4,  name: "Spring Bank Holiday",          date: "Mon 31 May 2027",  iso: "2027-05-31" },
+      { month: 7,  name: "Summer Bank Holiday",          date: "Mon 30 Aug 2027",  iso: "2027-08-30" },
+      { month: 11, name: "Christmas Day",                date: "Mon 27 Dec 2027 (substitute)", iso: "2027-12-27" },
+      { month: 11, name: "Boxing Day",                   date: "Tue 28 Dec 2027 (substitute)", iso: "2027-12-28" },
+      { month: 0,  name: "New Year's Day",               date: "Fri 1 Jan 2027",   iso: "2027-01-01" },
+    ]
+  },
+  ca: {
+    2026: [
+      { month: 1,  name: "Family Day",                   date: "Mon 16 Feb 2026",  iso: "2026-02-16" },
+      { month: 3,  name: "Good Friday",                  date: "Fri 3 Apr 2026",   iso: "2026-04-03" },
+      { month: 4,  name: "Victoria Day",                 date: "Mon 18 May 2026",  iso: "2026-05-18" },
+      { month: 6,  name: "Canada Day",                   date: "Wed 1 Jul 2026",   iso: "2026-07-01" },
+      { month: 7,  name: "Civic Holiday",                date: "Mon 3 Aug 2026",   iso: "2026-08-03" },
+      { month: 8,  name: "Labour Day",                   date: "Mon 7 Sep 2026",   iso: "2026-09-07" },
+      { month: 8,  name: "National Day for Truth & Reconciliation", date: "Wed 30 Sep 2026", iso: "2026-09-30" },
+      { month: 9,  name: "Thanksgiving Day",             date: "Mon 12 Oct 2026",  iso: "2026-10-12" },
+      { month: 10, name: "Remembrance Day",              date: "Wed 11 Nov 2026",  iso: "2026-11-11" },
+      { month: 11, name: "Christmas Day",                date: "Fri 25 Dec 2026",  iso: "2026-12-25" },
+      { month: 11, name: "Boxing Day",                   date: "Mon 28 Dec 2026 (substitute)", iso: "2026-12-28" },
+      { month: 0,  name: "New Year's Day",               date: "Thu 1 Jan 2026",   iso: "2026-01-01" },
+    ],
+    2027: [
+      { month: 1,  name: "Family Day",                   date: "Mon 15 Feb 2027",  iso: "2027-02-15" },
+      { month: 2,  name: "Good Friday",                  date: "Fri 26 Mar 2027",  iso: "2027-03-26" },
+      { month: 4,  name: "Victoria Day",                 date: "Mon 24 May 2027",  iso: "2027-05-24" },
+      { month: 6,  name: "Canada Day",                   date: "Thu 1 Jul 2027",   iso: "2027-07-01" },
+      { month: 7,  name: "Civic Holiday",                date: "Mon 2 Aug 2027",   iso: "2027-08-02" },
+      { month: 8,  name: "Labour Day",                   date: "Mon 6 Sep 2027",   iso: "2027-09-06" },
+      { month: 8,  name: "National Day for Truth & Reconciliation", date: "Thu 30 Sep 2027", iso: "2027-09-30" },
+      { month: 9,  name: "Thanksgiving Day",             date: "Mon 11 Oct 2027",  iso: "2027-10-11" },
+      { month: 10, name: "Remembrance Day",              date: "Thu 11 Nov 2027",  iso: "2027-11-11" },
+      { month: 11, name: "Christmas Day",                date: "Mon 27 Dec 2027 (substitute)", iso: "2027-12-27" },
+      { month: 11, name: "Boxing Day",                   date: "Tue 28 Dec 2027 (substitute)", iso: "2027-12-28" },
+      { month: 0,  name: "New Year's Day",               date: "Fri 1 Jan 2027",   iso: "2027-01-01" },
+    ]
+  }
 };
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-function isoForFixed(day, month) {
-  const now = new Date(); let dt = new Date(now.getFullYear(), month, day);
-  if (dt < now) dt = new Date(now.getFullYear()+1, month, day);
-  return dt.toISOString().slice(0,10);
-}
-function isoNthWeekday(n, wd, month) {
-  const now = new Date();
-  for (let y of [now.getFullYear(), now.getFullYear()+1]) {
-    let dt = new Date(y, month, 1);
-    while (dt.getDay() !== wd) dt.setDate(dt.getDate()+1);
-    dt.setDate(dt.getDate()+(n-1)*7);
-    if (dt >= now) return dt.toISOString().slice(0,10);
-  } return null;
-}
-function isoLastWeekday(wd, month) {
-  const now = new Date();
-  for (let y of [now.getFullYear(), now.getFullYear()+1]) {
-    let dt = new Date(y, month+1, 0);
-    while (dt.getDay() !== wd) dt.setDate(dt.getDate()-1);
-    if (dt >= now) return dt.toISOString().slice(0,10);
-  } return null;
-}
-function isoMonBefore(cutoff, month) {
-  const now = new Date();
-  for (let y of [now.getFullYear(), now.getFullYear()+1]) {
-    let dt = new Date(y, month, cutoff);
-    while (dt.getDay() !== 1) dt.setDate(dt.getDate()-1);
-    if (dt >= now) return dt.toISOString().slice(0,10);
-  } return null;
-}
 
 function getDefaultClose() { return document.getElementById('defaultClose').value; }
 function getDefaultOpen() { return document.getElementById('defaultOpen').value; }
 function isDayActive(i) { const cb = document.getElementById('day-'+i); return cb ? cb.checked : false; }
 function getActiveDays() { return DAYS.map((d,i) => isDayActive(i) ? i : null).filter(i => i !== null); }
+function show2027() { return document.getElementById('show2027').checked; }
+
+function getAllHolidays() {
+  const t = document.getElementById('territory').value;
+  const h2026 = HOLIDAYS[t][2026].map(h => ({...h, year: 2026}));
+  const h2027 = show2027() ? HOLIDAYS[t][2027].map(h => ({...h, year: 2027})) : [];
+  return [...h2026, ...h2027, ...customHolidays];
+}
 
 function initDays() {
   const grid = document.getElementById('dayGrid');
@@ -305,30 +331,35 @@ function getCloseForDay(i) { return fmtTime((dayOverrides[i] && dayOverrides[i].
 function getOpenForDay(i) { return fmtTime((dayOverrides[i] && dayOverrides[i].open) || getDefaultOpen()); }
 
 function loadHolidays() { selectedHolidays.clear(); holidayOverrides = {}; renderHolidays(); }
-function getHolidayKey(h) { return h.name; }
+function getHolidayKey(h) { return h.iso || h.name; }
 
 function renderHolidays() {
-  const territory = document.getElementById('territory').value;
-  const allHolidays = [...HOLIDAYS[territory], ...customHolidays];
+  const allHolidays = getAllHolidays();
   const list = document.getElementById('holidayList');
   list.innerHTML = '';
-  let lastMonth = null;
+  let lastMonthKey = null;
+
   allHolidays.forEach(h => {
-    if (h.month !== lastMonth) {
+    const monthKey = h.year ? `${h.year}-${h.month}` : `custom-${h.month}`;
+    if (monthKey !== lastMonthKey) {
       const div = document.createElement('div');
-      div.className = 'month-divider'; div.textContent = MONTH_NAMES[h.month];
-      list.appendChild(div); lastMonth = h.month;
+      div.className = 'month-divider';
+      div.textContent = h.year ? `${MONTH_NAMES[h.month]} ${h.year}` : MONTH_NAMES[h.month];
+      list.appendChild(div);
+      lastMonthKey = monthKey;
     }
+
     const key = getHolidayKey(h), isSelected = selectedHolidays.has(key);
     const override = holidayOverrides[key] || {};
-    const defaultIso = h.iso ? h.iso() : (h.isoFixed || null);
-    const startVal = override.start || defaultIso || '';
+    const startVal = override.start || h.iso || '';
     const endVal = override.end || '', isRange = override.isRange || false;
+
     const item = document.createElement('div');
     item.className = 'holiday-item' + (isSelected ? ' selected' : '');
     const row = document.createElement('div');
     row.className = 'holiday-row';
     row.innerHTML = `<input type="checkbox" ${isSelected ? 'checked' : ''} /><span class="holiday-name">${h.name}</span><span class="holiday-default-date">${h.date}</span>${h.custom ? `<button class="remove-btn" title="Remove">&#x2715;</button>` : ''}`;
+
     row.querySelector('input[type=checkbox]').onclick = e => {
       e.stopPropagation();
       if (selectedHolidays.has(key)) selectedHolidays.delete(key); else selectedHolidays.add(key);
@@ -346,6 +377,7 @@ function renderHolidays() {
         selectedHolidays.delete(key); delete holidayOverrides[key]; renderHolidays();
       };
     }
+
     const editor = document.createElement('div');
     editor.className = 'date-editor';
     if (isSelected) {
@@ -382,9 +414,9 @@ function renderHolidays() {
 }
 
 function updateCount() { document.getElementById('countBadge').textContent = selectedHolidays.size + ' selected'; }
+
 function selectAll() {
-  const t = document.getElementById('territory').value;
-  [...HOLIDAYS[t], ...customHolidays].forEach(h => selectedHolidays.add(getHolidayKey(h)));
+  getAllHolidays().forEach(h => selectedHolidays.add(getHolidayKey(h)));
   renderHolidays();
 }
 function clearAll() { selectedHolidays.clear(); renderHolidays(); }
@@ -393,21 +425,33 @@ function addCustom() {
   const name = document.getElementById('customName').value.trim();
   const dateVal = document.getElementById('customDate').value;
   if (!name || !dateVal) return;
-  const dt = new Date(dateVal+'T12:00:00'), month = dt.getMonth();
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const month = m - 1;
   const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  customHolidays.push({ month, name, date:`${dt.getDate()} ${mn[month]}`, isoFixed:dateVal, iso:()=>dateVal, custom:true });
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dt = new Date(y, month, d);
+  const dateLabel = `${days[dt.getDay()]} ${d} ${mn[month]} ${y}`;
+  customHolidays.push({ month, name, date: dateLabel, iso: dateVal, custom: true });
   document.getElementById('customName').value=''; document.getElementById('customDate').value='';
   renderHolidays();
 }
 
-function prevWorkingDay(isoDate) {
-  const active = getActiveDays(), d = new Date(isoDate+'T12:00:00');
+// Uses local date parsing to avoid UTC timezone shift
+function parseISO(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function prevWorkingDay(iso) {
+  const active = getActiveDays();
+  const d = parseISO(iso);
   d.setDate(d.getDate()-1);
   while (!active.includes((d.getDay()+6)%7)) d.setDate(d.getDate()-1);
   return d;
 }
-function nextWorkingDay(isoDate) {
-  const active = getActiveDays(), d = new Date(isoDate+'T12:00:00');
+function nextWorkingDay(iso) {
+  const active = getActiveDays();
+  const d = parseISO(iso);
   d.setDate(d.getDate()+1);
   while (!active.includes((d.getDay()+6)%7)) d.setDate(d.getDate()+1);
   return d;
@@ -419,21 +463,22 @@ function fmtDate(d) {
 }
 
 function generate() {
-  const t = document.getElementById('territory').value;
-  const allHolidays = [...HOLIDAYS[t], ...customHolidays];
+  const allHolidays = getAllHolidays();
   const selected = allHolidays.filter(h => selectedHolidays.has(getHolidayKey(h)));
   if (selected.length===0) { document.getElementById('output').innerHTML='<span class="empty-state">No holidays selected.</span>'; return; }
   if (getActiveDays().length===0) { document.getElementById('output').innerHTML='<span class="empty-state">No working days selected.</span>'; return; }
+
   const lines=[], warnings=[];
   selected.forEach(h => {
     const key=getHolidayKey(h), override=holidayOverrides[key]||{};
-    const startIso = override.start || (h.iso ? h.iso() : null);
+    const startIso = override.start || h.iso;
     const endIso = override.isRange ? (override.end||null) : null;
     if (!startIso) { warnings.push(h.name); lines.push(`${h.name}: [date needed — please enter manually]`); return; }
     const uploadDay=prevWorkingDay(startIso), revertDay=nextWorkingDay(endIso||startIso);
     const ui=(uploadDay.getDay()+6)%7, ri=(revertDay.getDay()+6)%7;
     lines.push(`${h.name}: upload ${fmtDate(uploadDay)} at ${getCloseForDay(ui)} ; play 24/7 ; revert ${fmtDate(revertDay)} at ${getOpenForDay(ri)}`);
   });
+
   const out = document.getElementById('output');
   out.textContent = lines.join('\n');
   if (warnings.length) {
