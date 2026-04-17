@@ -8,336 +8,92 @@
 <title>OOH Schedule Builder</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #ffffff;
-    --bg-secondary: #f5f5f4;
-    --bg-info: #eff6ff;
-    --border: rgba(0,0,0,0.12);
-    --border-secondary: rgba(0,0,0,0.2);
-    --border-info: rgba(59,130,246,0.4);
-    --text: #1a1a1a;
-    --text-secondary: #6b7280;
-    --text-tertiary: #9ca3af;
-    --text-info: #1d4ed8;
-    --text-warning: #b45309;
-    --radius-md: 8px;
-    --radius-lg: 12px;
+    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-info: #eff6ff;
+    --border: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.2); --border-info: rgba(59,130,246,0.4);
+    --text: #1a1a1a; --text-secondary: #6b7280; --text-tertiary: #9ca3af;
+    --text-info: #1d4ed8; --text-warning: #b45309;
+    --radius-md: 8px; --radius-lg: 12px;
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   }
-
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1c1e;
-      --bg-secondary: #2c2c2e;
-      --bg-info: #1e3a5f;
-      --border: rgba(255,255,255,0.12);
-      --border-secondary: rgba(255,255,255,0.2);
-      --border-info: rgba(96,165,250,0.4);
-      --text: #f2f2f7;
-      --text-secondary: #aeaeb2;
-      --text-tertiary: #636366;
-      --text-info: #60a5fa;
-      --text-warning: #fbbf24;
+      --bg: #1c1c1e; --bg-secondary: #2c2c2e; --bg-info: #1e3a5f;
+      --border: rgba(255,255,255,0.12); --border-secondary: rgba(255,255,255,0.2); --border-info: rgba(96,165,250,0.4);
+      --text: #f2f2f7; --text-secondary: #aeaeb2; --text-tertiary: #636366;
+      --text-info: #60a5fa; --text-warning: #fbbf24;
     }
   }
-
-  body {
-    font-family: var(--font);
-    background: var(--bg-secondary);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 2rem 1rem;
-  }
-
-  .container {
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  h1 {
-    font-size: 22px;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-  }
-
-  .subtitle {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-  }
-
-  .card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-  }
-
-  .section-title {
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 0.5px solid var(--border);
-  }
-
-  .row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 140px;
-  }
-
-  .field label, .field-label {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-bottom: 4px;
-    display: block;
-  }
-
+  body { font-family: var(--font); background: var(--bg-secondary); color: var(--text); min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 2rem; }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .section-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; flex: 1; min-width: 140px; }
+  .field label, .field-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; display: block; }
   select, input[type=text], input[type=time], input[type=date] {
-    width: 100%;
-    padding: 7px 10px;
-    font-size: 13px;
-    font-family: var(--font);
-    border: 0.5px solid var(--border-secondary);
-    border-radius: var(--radius-md);
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
+    width: 100%; padding: 7px 10px; font-size: 13px; font-family: var(--font);
+    border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md);
+    background: var(--bg); color: var(--text); outline: none;
   }
-
-  select:focus, input:focus {
-    border-color: var(--border-info);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
-  }
-
-  .day-grid {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
-  .day-check {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    color: var(--text);
-  }
-
+  select:focus, input:focus { border-color: var(--border-info); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+  .day-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .day-check { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; color: var(--text); }
   .day-check input { cursor: pointer; }
-
-  .holiday-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 8px;
-  }
-
-  .holiday-item {
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  .holiday-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 10px;
-    cursor: pointer;
-    font-size: 13px;
-    user-select: none;
-  }
-
+  .override-check-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+  .override-check-label input { cursor: pointer; }
+  .per-day-section { margin-top: 12px; border-top: 0.5px solid var(--border); padding-top: 12px; display: none; }
+  .per-day-section.visible { display: block; }
+  .per-day-grid { display: flex; flex-direction: column; gap: 5px; }
+  .per-day-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 0.5px solid var(--border); border-radius: var(--radius-md); font-size: 13px; }
+  .per-day-row.closed-day { opacity: 0.4; }
+  .per-day-name { min-width: 36px; font-size: 13px; color: var(--text); }
+  .per-day-closed { font-size: 12px; color: var(--text-tertiary); font-style: italic; }
+  .per-day-times { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; }
+  .per-day-times label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+  .per-day-times input[type=time] { width: 110px; font-size: 12px; padding: 3px 6px; }
+  .holiday-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+  .holiday-item { border: 0.5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .holiday-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; cursor: pointer; font-size: 13px; user-select: none; }
   .holiday-row:hover { background: var(--bg-secondary); }
-
-  .holiday-item.selected .holiday-row {
-    background: var(--bg-info);
-    color: var(--text-info);
-  }
-
+  .holiday-item.selected .holiday-row { background: var(--bg-info); color: var(--text-info); }
   .holiday-item input[type=checkbox] { margin: 0; flex-shrink: 0; cursor: pointer; }
-
   .holiday-name { flex: 1; }
-
-  .holiday-default-date {
-    font-size: 11px;
-    color: var(--text-tertiary);
-    white-space: nowrap;
-  }
-
-  .holiday-item.selected .holiday-default-date {
-    color: var(--text-info);
-    opacity: 0.7;
-  }
-
-  .date-editor {
-    padding: 8px 10px 10px;
-    border-top: 0.5px solid var(--border);
-    background: var(--bg-secondary);
-    display: none;
-  }
-
+  .holiday-default-date { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; }
+  .holiday-item.selected .holiday-default-date { color: var(--text-info); opacity: 0.7; }
+  .date-editor { padding: 8px 10px 10px; border-top: 0.5px solid var(--border); background: var(--bg-secondary); display: none; }
   .holiday-item.selected .date-editor { display: block; }
-
-  .date-editor-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .date-editor label {
-    font-size: 11px;
-    color: var(--text-secondary);
-    white-space: nowrap;
-  }
-
-  .date-editor input[type=date] {
-    font-size: 12px;
-    padding: 3px 6px;
-    width: auto;
-    flex: 1;
-    min-width: 130px;
-  }
-
-  .range-toggle {
-    font-size: 11px;
-    color: var(--text-info);
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    text-decoration: underline;
-    white-space: nowrap;
-    font-family: var(--font);
-  }
-
-  .remove-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--text-tertiary);
-    padding: 0 2px;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-
+  .date-editor-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .date-editor label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+  .date-editor input[type=date] { font-size: 12px; padding: 3px 6px; width: auto; flex: 1; min-width: 130px; }
+  .range-toggle { font-size: 11px; color: var(--text-info); cursor: pointer; background: none; border: none; padding: 0; text-decoration: underline; white-space: nowrap; font-family: var(--font); }
+  .remove-btn { background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text-tertiary); padding: 0 2px; line-height: 1; flex-shrink: 0; }
   .remove-btn:hover { color: #dc2626; }
-
-  .select-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-    align-items: center;
-  }
-
-  .badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 99px;
-    background: var(--bg-info);
-    color: var(--text-info);
-    font-weight: 500;
-  }
-
-  .month-divider {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 10px 2px 4px;
-  }
-
-  .output-box {
-    background: var(--bg-secondary);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.9;
-    white-space: pre-wrap;
-    color: var(--text);
-    min-height: 80px;
-  }
-
-  .empty-state {
-    font-size: 13px;
-    color: var(--text-tertiary);
-    font-style: italic;
-  }
-
-  .warning-note {
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--text-warning);
-  }
-
-  .btn {
-    padding: 7px 16px;
-    font-size: 13px;
-    font-family: var(--font);
-    border: 0.5px solid var(--border-secondary);
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--text);
-    cursor: pointer;
-  }
-
+  .select-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--bg-info); color: var(--text-info); font-weight: 500; }
+  .month-divider { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 2px 4px; }
+  .output-box { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 1rem; font-family: var(--font-mono); font-size: 13px; line-height: 1.9; white-space: pre-wrap; color: var(--text); min-height: 80px; }
+  .empty-state { font-size: 13px; color: var(--text-tertiary); font-style: italic; }
+  .warning-note { margin-top: 12px; font-size: 12px; color: var(--text-warning); }
+  .btn { padding: 7px 16px; font-size: 13px; font-family: var(--font); border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md); background: transparent; color: var(--text); cursor: pointer; }
   .btn:hover { background: var(--bg-secondary); }
-
-  .btn-primary {
-    background: var(--bg-info);
-    color: var(--text-info);
-    border-color: var(--border-info);
-  }
-
+  .btn-primary { background: var(--bg-info); color: var(--text-info); border-color: var(--border-info); }
   .btn-primary:hover { opacity: 0.85; }
-
-  .output-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .output-header span {
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .btn-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-  }
+  .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .output-header span { font-size: 14px; font-weight: 500; }
+  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
 </style>
 </head>
 <body>
 <div class="container">
-
-  <h1>OOH schedule builder</h1>
-  <p class="subtitle">Generate out-of-hours schedules for client audio productions.</p>
+  <h1>OOH Schedule Builder</h1>
+  <p class="subtitle">Generate out-of-hours upload schedules</p>
 
   <div class="card">
-    <div class="section-title">Client config</div>
+    <div class="section-title">Territory and hours</div>
     <div class="row">
       <div class="field">
         <label>Territory</label>
@@ -348,17 +104,22 @@
         </select>
       </div>
       <div class="field">
-        <label>Default upload time</label>
-        <input type="time" id="uploadTime" value="17:00" />
+        <label>Default open time</label>
+        <input type="time" id="defaultOpen" value="09:00" onchange="renderPerDay()" />
       </div>
       <div class="field">
-        <label>Default revert time</label>
-        <input type="time" id="revertTime" value="09:00" />
+        <label>Default close time</label>
+        <input type="time" id="defaultClose" value="17:00" onchange="renderPerDay()" />
       </div>
     </div>
-    <div>
-      <span class="field-label">Working days</span>
-      <div class="day-grid" id="dayGrid"></div>
+    <span class="field-label">Working days</span>
+    <div class="day-grid" id="dayGrid"></div>
+    <label class="override-check-label">
+      <input type="checkbox" id="perDayToggle" onchange="togglePerDay()" />
+      Set different hours per day
+    </label>
+    <div class="per-day-section" id="perDaySection">
+      <div class="per-day-grid" id="perDayGrid"></div>
     </div>
   </div>
 
@@ -397,14 +158,11 @@
       <button class="btn" onclick="copyOutput()">Copy to clipboard</button>
     </div>
   </div>
-
 </div>
 
 <script>
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-let customHolidays = [];
-let selectedHolidays = new Set();
-let holidayOverrides = {};
+let customHolidays = [], selectedHolidays = new Set(), holidayOverrides = {}, dayOverrides = {};
 
 const HOLIDAYS = {
   us: [
@@ -449,49 +207,40 @@ const HOLIDAYS = {
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function isoForFixed(day, month) {
-  const now = new Date();
-  let dt = new Date(now.getFullYear(), month, day);
-  if (dt < now) dt = new Date(now.getFullYear() + 1, month, day);
-  return dt.toISOString().slice(0, 10);
+  const now = new Date(); let dt = new Date(now.getFullYear(), month, day);
+  if (dt < now) dt = new Date(now.getFullYear()+1, month, day);
+  return dt.toISOString().slice(0,10);
 }
-
 function isoNthWeekday(n, wd, month) {
   const now = new Date();
-  for (let year of [now.getFullYear(), now.getFullYear() + 1]) {
-    let dt = new Date(year, month, 1);
-    while (dt.getDay() !== wd) dt.setDate(dt.getDate() + 1);
-    dt.setDate(dt.getDate() + (n - 1) * 7);
-    if (dt >= now) return dt.toISOString().slice(0, 10);
-  }
-  return null;
+  for (let y of [now.getFullYear(), now.getFullYear()+1]) {
+    let dt = new Date(y, month, 1);
+    while (dt.getDay() !== wd) dt.setDate(dt.getDate()+1);
+    dt.setDate(dt.getDate()+(n-1)*7);
+    if (dt >= now) return dt.toISOString().slice(0,10);
+  } return null;
 }
-
 function isoLastWeekday(wd, month) {
   const now = new Date();
-  for (let year of [now.getFullYear(), now.getFullYear() + 1]) {
-    let dt = new Date(year, month + 1, 0);
-    while (dt.getDay() !== wd) dt.setDate(dt.getDate() - 1);
-    if (dt >= now) return dt.toISOString().slice(0, 10);
-  }
-  return null;
+  for (let y of [now.getFullYear(), now.getFullYear()+1]) {
+    let dt = new Date(y, month+1, 0);
+    while (dt.getDay() !== wd) dt.setDate(dt.getDate()-1);
+    if (dt >= now) return dt.toISOString().slice(0,10);
+  } return null;
 }
-
 function isoMonBefore(cutoff, month) {
   const now = new Date();
-  for (let year of [now.getFullYear(), now.getFullYear() + 1]) {
-    let dt = new Date(year, month, cutoff);
-    while (dt.getDay() !== 1) dt.setDate(dt.getDate() - 1);
-    if (dt >= now) return dt.toISOString().slice(0, 10);
-  }
-  return null;
+  for (let y of [now.getFullYear(), now.getFullYear()+1]) {
+    let dt = new Date(y, month, cutoff);
+    while (dt.getDay() !== 1) dt.setDate(dt.getDate()-1);
+    if (dt >= now) return dt.toISOString().slice(0,10);
+  } return null;
 }
 
-function getActiveDays() {
-  return DAYS.map((d, i) => {
-    const cb = document.getElementById('day-' + i);
-    return cb && cb.checked ? i : null;
-  }).filter(i => i !== null);
-}
+function getDefaultClose() { return document.getElementById('defaultClose').value; }
+function getDefaultOpen() { return document.getElementById('defaultOpen').value; }
+function isDayActive(i) { const cb = document.getElementById('day-'+i); return cb ? cb.checked : false; }
+function getActiveDays() { return DAYS.map((d,i) => isDayActive(i) ? i : null).filter(i => i !== null); }
 
 function initDays() {
   const grid = document.getElementById('dayGrid');
@@ -500,21 +249,62 @@ function initDays() {
     const label = document.createElement('label');
     label.className = 'day-check';
     const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.id = 'day-' + i;
-    cb.checked = i < 5;
-    label.appendChild(cb);
-    label.appendChild(document.createTextNode(d));
+    cb.type = 'checkbox'; cb.id = 'day-'+i; cb.checked = i < 5;
+    cb.onchange = () => { if (document.getElementById('perDayToggle').checked) renderPerDay(); };
+    label.appendChild(cb); label.appendChild(document.createTextNode(d));
     grid.appendChild(label);
   });
 }
 
-function loadHolidays() {
-  selectedHolidays.clear();
-  holidayOverrides = {};
-  renderHolidays();
+function togglePerDay() {
+  const show = document.getElementById('perDayToggle').checked;
+  document.getElementById('perDaySection').classList.toggle('visible', show);
+  if (show) renderPerDay();
 }
 
+function renderPerDay() {
+  const grid = document.getElementById('perDayGrid');
+  grid.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const active = isDayActive(i), override = dayOverrides[i] || {};
+    const row = document.createElement('div');
+    row.className = 'per-day-row' + (active ? '' : ' closed-day');
+    const name = document.createElement('span');
+    name.className = 'per-day-name'; name.textContent = d;
+    row.appendChild(name);
+    if (!active) {
+      const closed = document.createElement('span');
+      closed.className = 'per-day-closed'; closed.textContent = 'Closed';
+      row.appendChild(closed);
+    } else {
+      const times = document.createElement('div');
+      times.className = 'per-day-times';
+      const openLabel = document.createElement('label'); openLabel.textContent = 'Open';
+      const openInput = document.createElement('input');
+      openInput.type = 'time'; openInput.value = override.open || getDefaultOpen();
+      openInput.onchange = e => { if (!dayOverrides[i]) dayOverrides[i]={}; dayOverrides[i].open=e.target.value; };
+      const closeLabel = document.createElement('label'); closeLabel.textContent = 'Close';
+      const closeInput = document.createElement('input');
+      closeInput.type = 'time'; closeInput.value = override.close || getDefaultClose();
+      closeInput.onchange = e => { if (!dayOverrides[i]) dayOverrides[i]={}; dayOverrides[i].close=e.target.value; };
+      times.appendChild(openLabel); times.appendChild(openInput);
+      times.appendChild(closeLabel); times.appendChild(closeInput);
+      row.appendChild(times);
+    }
+    grid.appendChild(row);
+  });
+}
+
+function fmtTime(val) {
+  if (!val) return '';
+  const [h, m] = val.split(':'); const hour = parseInt(h);
+  const ampm = hour >= 12 ? 'pm' : 'am'; const h12 = hour%12===0 ? 12 : hour%12;
+  return m==='00' ? `${h12}${ampm}` : `${h12}:${m}${ampm}`;
+}
+function getCloseForDay(i) { return fmtTime((dayOverrides[i] && dayOverrides[i].close) || getDefaultClose()); }
+function getOpenForDay(i) { return fmtTime((dayOverrides[i] && dayOverrides[i].open) || getDefaultOpen()); }
+
+function loadHolidays() { selectedHolidays.clear(); holidayOverrides = {}; renderHolidays(); }
 function getHolidayKey(h) { return h.name; }
 
 function renderHolidays() {
@@ -523,218 +313,133 @@ function renderHolidays() {
   const list = document.getElementById('holidayList');
   list.innerHTML = '';
   let lastMonth = null;
-
   allHolidays.forEach(h => {
     if (h.month !== lastMonth) {
       const div = document.createElement('div');
-      div.className = 'month-divider';
-      div.textContent = MONTH_NAMES[h.month];
-      list.appendChild(div);
-      lastMonth = h.month;
+      div.className = 'month-divider'; div.textContent = MONTH_NAMES[h.month];
+      list.appendChild(div); lastMonth = h.month;
     }
-
-    const key = getHolidayKey(h);
-    const isSelected = selectedHolidays.has(key);
+    const key = getHolidayKey(h), isSelected = selectedHolidays.has(key);
     const override = holidayOverrides[key] || {};
     const defaultIso = h.iso ? h.iso() : (h.isoFixed || null);
     const startVal = override.start || defaultIso || '';
-    const endVal = override.end || '';
-    const isRange = override.isRange || false;
-
+    const endVal = override.end || '', isRange = override.isRange || false;
     const item = document.createElement('div');
     item.className = 'holiday-item' + (isSelected ? ' selected' : '');
-
     const row = document.createElement('div');
     row.className = 'holiday-row';
     row.innerHTML = `<input type="checkbox" ${isSelected ? 'checked' : ''} /><span class="holiday-name">${h.name}</span><span class="holiday-default-date">${h.date}</span>${h.custom ? `<button class="remove-btn" title="Remove">&#x2715;</button>` : ''}`;
-
     row.querySelector('input[type=checkbox]').onclick = e => {
       e.stopPropagation();
-      if (selectedHolidays.has(key)) selectedHolidays.delete(key);
-      else selectedHolidays.add(key);
+      if (selectedHolidays.has(key)) selectedHolidays.delete(key); else selectedHolidays.add(key);
       renderHolidays();
     };
     row.onclick = e => {
-      if (e.target.tagName === 'INPUT' || e.target.classList.contains('remove-btn')) return;
-      if (selectedHolidays.has(key)) selectedHolidays.delete(key);
-      else selectedHolidays.add(key);
+      if (e.target.tagName==='INPUT' || e.target.classList.contains('remove-btn')) return;
+      if (selectedHolidays.has(key)) selectedHolidays.delete(key); else selectedHolidays.add(key);
       renderHolidays();
     };
     if (h.custom) {
       row.querySelector('.remove-btn').onclick = e => {
         e.stopPropagation();
         customHolidays = customHolidays.filter(c => c.name !== h.name);
-        selectedHolidays.delete(key);
-        delete holidayOverrides[key];
-        renderHolidays();
+        selectedHolidays.delete(key); delete holidayOverrides[key]; renderHolidays();
       };
     }
-
     const editor = document.createElement('div');
     editor.className = 'date-editor';
-
     if (isSelected) {
       const editorRow = document.createElement('div');
       editorRow.className = 'date-editor-row';
-
-      const startLabel = document.createElement('label');
-      startLabel.textContent = isRange ? 'From' : 'Date';
-
+      const startLabel = document.createElement('label'); startLabel.textContent = isRange ? 'From' : 'Date';
       const startInput = document.createElement('input');
-      startInput.type = 'date';
-      startInput.value = startVal;
+      startInput.type = 'date'; startInput.value = startVal;
       startInput.onclick = e => e.stopPropagation();
-      startInput.onchange = e => {
-        if (!holidayOverrides[key]) holidayOverrides[key] = {};
-        holidayOverrides[key].start = e.target.value;
-        holidayOverrides[key].isRange = isRange;
-      };
-
-      editorRow.appendChild(startLabel);
-      editorRow.appendChild(startInput);
-
+      startInput.onchange = e => { if (!holidayOverrides[key]) holidayOverrides[key]={}; holidayOverrides[key].start=e.target.value; holidayOverrides[key].isRange=isRange; };
+      editorRow.appendChild(startLabel); editorRow.appendChild(startInput);
       if (isRange) {
-        const endLabel = document.createElement('label');
-        endLabel.textContent = 'To';
+        const endLabel = document.createElement('label'); endLabel.textContent = 'To';
         const endInput = document.createElement('input');
-        endInput.type = 'date';
-        endInput.value = endVal;
+        endInput.type = 'date'; endInput.value = endVal;
         endInput.onclick = e => e.stopPropagation();
-        endInput.onchange = e => {
-          if (!holidayOverrides[key]) holidayOverrides[key] = {};
-          holidayOverrides[key].end = e.target.value;
-        };
-        editorRow.appendChild(endLabel);
-        editorRow.appendChild(endInput);
+        endInput.onchange = e => { if (!holidayOverrides[key]) holidayOverrides[key]={}; holidayOverrides[key].end=e.target.value; };
+        editorRow.appendChild(endLabel); editorRow.appendChild(endInput);
       }
-
       const toggleBtn = document.createElement('button');
-      toggleBtn.className = 'range-toggle';
-      toggleBtn.textContent = isRange ? 'Single day' : '+ Date range';
+      toggleBtn.className = 'range-toggle'; toggleBtn.textContent = isRange ? 'Single day' : '+ Date range';
       toggleBtn.onclick = e => {
         e.stopPropagation();
-        if (!holidayOverrides[key]) holidayOverrides[key] = { start: startVal };
+        if (!holidayOverrides[key]) holidayOverrides[key]={start:startVal};
         holidayOverrides[key].isRange = !isRange;
-        if (!isRange) holidayOverrides[key].end = '';
+        if (!isRange) holidayOverrides[key].end='';
         renderHolidays();
       };
-
-      editorRow.appendChild(toggleBtn);
-      editor.appendChild(editorRow);
+      editorRow.appendChild(toggleBtn); editor.appendChild(editorRow);
     }
-
-    item.appendChild(row);
-    item.appendChild(editor);
-    list.appendChild(item);
+    item.appendChild(row); item.appendChild(editor); list.appendChild(item);
   });
-
   updateCount();
 }
 
-function updateCount() {
-  document.getElementById('countBadge').textContent = selectedHolidays.size + ' selected';
-}
-
+function updateCount() { document.getElementById('countBadge').textContent = selectedHolidays.size + ' selected'; }
 function selectAll() {
-  const territory = document.getElementById('territory').value;
-  const allHolidays = [...HOLIDAYS[territory], ...customHolidays];
-  allHolidays.forEach(h => selectedHolidays.add(getHolidayKey(h)));
+  const t = document.getElementById('territory').value;
+  [...HOLIDAYS[t], ...customHolidays].forEach(h => selectedHolidays.add(getHolidayKey(h)));
   renderHolidays();
 }
-
-function clearAll() {
-  selectedHolidays.clear();
-  renderHolidays();
-}
+function clearAll() { selectedHolidays.clear(); renderHolidays(); }
 
 function addCustom() {
   const name = document.getElementById('customName').value.trim();
   const dateVal = document.getElementById('customDate').value;
   if (!name || !dateVal) return;
-  const dt = new Date(dateVal + 'T12:00:00');
-  const month = dt.getMonth();
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const dateLabel = `${dt.getDate()} ${monthNames[month]}`;
-  customHolidays.push({ month, name, date: dateLabel, isoFixed: dateVal, iso: () => dateVal, custom: true });
-  document.getElementById('customName').value = '';
-  document.getElementById('customDate').value = '';
+  const dt = new Date(dateVal+'T12:00:00'), month = dt.getMonth();
+  const mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  customHolidays.push({ month, name, date:`${dt.getDate()} ${mn[month]}`, isoFixed:dateVal, iso:()=>dateVal, custom:true });
+  document.getElementById('customName').value=''; document.getElementById('customDate').value='';
   renderHolidays();
 }
 
-function fmtTime(val) {
-  const [h, m] = val.split(':');
-  const hour = parseInt(h);
-  const ampm = hour >= 12 ? 'pm' : 'am';
-  const h12 = hour % 12 === 0 ? 12 : hour % 12;
-  return m === '00' ? `${h12}${ampm}` : `${h12}:${m}${ampm}`;
-}
-
 function prevWorkingDay(isoDate) {
-  const activeDays = getActiveDays();
-  const d = new Date(isoDate + 'T12:00:00');
-  d.setDate(d.getDate() - 1);
-  while (!activeDays.includes((d.getDay() + 6) % 7)) d.setDate(d.getDate() - 1);
+  const active = getActiveDays(), d = new Date(isoDate+'T12:00:00');
+  d.setDate(d.getDate()-1);
+  while (!active.includes((d.getDay()+6)%7)) d.setDate(d.getDate()-1);
   return d;
 }
-
 function nextWorkingDay(isoDate) {
-  const activeDays = getActiveDays();
-  const d = new Date(isoDate + 'T12:00:00');
-  d.setDate(d.getDate() + 1);
-  while (!activeDays.includes((d.getDay() + 6) % 7)) d.setDate(d.getDate() + 1);
+  const active = getActiveDays(), d = new Date(isoDate+'T12:00:00');
+  d.setDate(d.getDate()+1);
+  while (!active.includes((d.getDay()+6)%7)) d.setDate(d.getDate()+1);
   return d;
 }
-
 function fmtDate(d) {
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
 }
 
 function generate() {
-  const territory = document.getElementById('territory').value;
-  const allHolidays = [...HOLIDAYS[territory], ...customHolidays];
-  const uploadFmt = fmtTime(document.getElementById('uploadTime').value);
-  const revertFmt = fmtTime(document.getElementById('revertTime').value);
+  const t = document.getElementById('territory').value;
+  const allHolidays = [...HOLIDAYS[t], ...customHolidays];
   const selected = allHolidays.filter(h => selectedHolidays.has(getHolidayKey(h)));
-
-  if (selected.length === 0) {
-    document.getElementById('output').innerHTML = '<span class="empty-state">No holidays selected.</span>';
-    return;
-  }
-  if (getActiveDays().length === 0) {
-    document.getElementById('output').innerHTML = '<span class="empty-state">No working days selected.</span>';
-    return;
-  }
-
-  const lines = [];
-  const warnings = [];
-
+  if (selected.length===0) { document.getElementById('output').innerHTML='<span class="empty-state">No holidays selected.</span>'; return; }
+  if (getActiveDays().length===0) { document.getElementById('output').innerHTML='<span class="empty-state">No working days selected.</span>'; return; }
+  const lines=[], warnings=[];
   selected.forEach(h => {
-    const key = getHolidayKey(h);
-    const override = holidayOverrides[key] || {};
-    const defaultIso = h.iso ? h.iso() : null;
-    const startIso = override.start || defaultIso;
-    const endIso = override.isRange ? (override.end || null) : null;
-
-    if (!startIso) {
-      warnings.push(h.name);
-      lines.push(`${h.name}: [date needed — please enter manually]`);
-      return;
-    }
-
-    const uploadDay = prevWorkingDay(startIso);
-    const revertDay = nextWorkingDay(endIso || startIso);
-    lines.push(`${h.name}: upload ${fmtDate(uploadDay)} at ${uploadFmt} ; play 24/7 ; revert ${fmtDate(revertDay)} at ${revertFmt}`);
+    const key=getHolidayKey(h), override=holidayOverrides[key]||{};
+    const startIso = override.start || (h.iso ? h.iso() : null);
+    const endIso = override.isRange ? (override.end||null) : null;
+    if (!startIso) { warnings.push(h.name); lines.push(`${h.name}: [date needed — please enter manually]`); return; }
+    const uploadDay=prevWorkingDay(startIso), revertDay=nextWorkingDay(endIso||startIso);
+    const ui=(uploadDay.getDay()+6)%7, ri=(revertDay.getDay()+6)%7;
+    lines.push(`${h.name}: upload ${fmtDate(uploadDay)} at ${getCloseForDay(ui)} ; play 24/7 ; revert ${fmtDate(revertDay)} at ${getOpenForDay(ri)}`);
   });
-
   const out = document.getElementById('output');
   out.textContent = lines.join('\n');
-
   if (warnings.length) {
-    const note = document.createElement('div');
-    note.className = 'warning-note';
-    note.textContent = 'Flagged for manual review: ' + warnings.join(', ');
+    const note=document.createElement('div');
+    note.className='warning-note';
+    note.textContent='Flagged for manual review: '+warnings.join(', ');
     out.appendChild(note);
   }
 }
@@ -743,7 +448,7 @@ function copyOutput() {
   const text = document.getElementById('output').textContent;
   navigator.clipboard.writeText(text).then(() => {
     const btns = document.querySelectorAll('.btn-row .btn');
-    btns.forEach(b => { if (b.textContent.includes('Copy')) { b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy to clipboard', 1500); } });
+    btns.forEach(b => { if (b.textContent.includes('Copy')) { b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy to clipboard',1500); }});
   });
 }
 
