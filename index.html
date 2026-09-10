@@ -1,36 +1,43 @@
-# JoshuaStead.github.io
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>OOH Schedule Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  input[type=checkbox] { accent-color: var(--paper-active); }
   :root {
-    --bg: #ffffff; --bg-secondary: #f5f5f4; --bg-info: #eff6ff;
-    --border: rgba(0,0,0,0.12); --border-secondary: rgba(0,0,0,0.2); --border-info: rgba(59,130,246,0.4);
-    --text: #1a1a1a; --text-secondary: #6b7280; --text-tertiary: #9ca3af;
-    --text-info: #1d4ed8; --text-warning: #b45309;
+    /* Paper theme — ported from the Day Manager PDA (Cadence "ecm" reference),
+       lightened a touch toward white for screen comfort. */
+    --paper-bg:      #F4F1EA;  /* page — lightened from #E8E4DA toward white */
+    --paper-surface: #FBFAF6;  /* cards — lightened from #F2EFE8 */
+    --paper-border:  #C3BCAC;  /* hairline source */
+    --paper-active:  #2F4B6E;  /* navy  — PDA --active */
+    --paper-slip:    #A8471F;  /* burnt orange — PDA --slipping */
+    --paper-overdue: #9E2B2B;  /* dark red — PDA --overdue */
+
+    --bg: var(--paper-surface); --bg-secondary: var(--paper-bg);
+    --bg-info: #e6ebf1;                 /* pale navy-tinted surface (badges, primary btn) */
+    --bg-selected: var(--paper-active); /* strong navy for the selected-holiday state */
+    --border: rgba(160,150,130,0.42); --border-secondary: rgba(139,131,114,0.5); --border-info: rgba(47,75,110,0.4);
+    --text: #1A1815; --text-secondary: #6B6355; --text-tertiary: #a49c8c;
+    --text-info: var(--paper-active); --text-warning: var(--paper-slip);
     --radius-md: 8px; --radius-lg: 12px;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1c1c1e; --bg-secondary: #2c2c2e; --bg-info: #1e3a5f;
-      --border: rgba(255,255,255,0.12); --border-secondary: rgba(255,255,255,0.2); --border-info: rgba(96,165,250,0.4);
-      --text: #f2f2f7; --text-secondary: #aeaeb2; --text-tertiary: #636366;
-      --text-info: #60a5fa; --text-warning: #fbbf24;
-    }
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-heading: 'Rajdhani', 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --paper-shadow: 0 1px 2px rgba(60,50,30,0.05), 0 2px 6px rgba(60,50,30,0.04);
   }
   body { font-family: var(--font); background: var(--bg-secondary); color: var(--text); min-height: 100vh; padding: 2rem 1rem; }
   .container { max-width: 720px; margin: 0 auto; }
-  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.25rem; }
+  h1 { font-size: 26px; font-weight: 600; margin-bottom: 0.25rem; font-family: var(--font-heading); letter-spacing: 0.02em; text-transform: uppercase; }
   .subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 2rem; }
-  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
-  .section-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; box-shadow: var(--paper-shadow); }
+  .section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); font-family: var(--font-heading); letter-spacing: 0.03em; text-transform: uppercase; }
   .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
   .field { display: flex; flex-direction: column; flex: 1; min-width: 140px; }
   .field label, .field-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; display: block; }
@@ -39,7 +46,7 @@
     border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md);
     background: var(--bg); color: var(--text); outline: none;
   }
-  select:focus, input:focus { border-color: var(--border-info); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+  select:focus, input:focus { border-color: var(--border-info); box-shadow: 0 0 0 3px rgba(47,75,110,0.16); }
   .day-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
   .day-check { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; color: var(--text); }
   .day-check input { cursor: pointer; }
@@ -59,11 +66,12 @@
   .holiday-item { border: 0.5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
   .holiday-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; cursor: pointer; font-size: 13px; user-select: none; }
   .holiday-row:hover { background: var(--bg-secondary); }
-  .holiday-item.selected .holiday-row { background: var(--bg-info); color: var(--text-info); }
+  .holiday-item.selected .holiday-row { background: var(--bg-selected); color: #ffffff; }
   .holiday-item input[type=checkbox] { margin: 0; flex-shrink: 0; cursor: pointer; }
+  .holiday-item.selected input[type=checkbox] { accent-color: #ffffff; }
   .holiday-name { flex: 1; }
   .holiday-default-date { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; }
-  .holiday-item.selected .holiday-default-date { color: var(--text-info); opacity: 0.7; }
+  .holiday-item.selected .holiday-default-date { color: rgba(255,255,255,0.75); }
   .date-editor { padding: 8px 10px 10px; border-top: 0.5px solid var(--border); background: var(--bg-secondary); display: none; }
   .holiday-item.selected .date-editor { display: block; }
   .date-editor-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -71,7 +79,7 @@
   .date-editor input[type=date] { font-size: 12px; padding: 3px 6px; width: auto; flex: 1; min-width: 130px; }
   .range-toggle { font-size: 11px; color: var(--text-info); cursor: pointer; background: none; border: none; padding: 0; text-decoration: underline; white-space: nowrap; font-family: var(--font); }
   .remove-btn { background: none; border: none; cursor: pointer; font-size: 14px; color: var(--text-tertiary); padding: 0 2px; line-height: 1; flex-shrink: 0; }
-  .remove-btn:hover { color: #dc2626; }
+  .remove-btn:hover { color: var(--paper-overdue); }
   .select-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
   .badge { font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--bg-info); color: var(--text-info); font-weight: 500; }
   .month-divider { font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 2px 4px; }
@@ -91,6 +99,17 @@
 <div class="container">
   <h1>OOH Schedule Builder</h1>
   <p class="subtitle">Generate out-of-hours upload schedules</p>
+
+  <div class="card">
+    <div class="section-title">Paste opening hours (optional)</div>
+    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Paste hours in almost any (sensible) format and click Parse. It'll fill in the dates and times below, just double-check your results. Anything unclear should get flagged underneath.</p>
+    <textarea id="pasteBox" rows="4" placeholder="e.g.&#10;Mon-Fri: 9am - 5:30pm&#10;Saturday 10:00 to 16:00&#10;Sun closed&#10;Handles most formats; day ranges, slashes, 12/24h, 'til noon', etc." style="width:100%; padding:8px 10px; font-size:13px; font-family:var(--font); border:0.5px solid var(--border-secondary); border-radius:var(--radius-md); background:var(--bg); color:var(--text); outline:none; resize:vertical;"></textarea>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-primary" onclick="parseHours()">Parse hours</button>
+      <button class="btn" onclick="document.getElementById('pasteBox').value='';document.getElementById('parseFeedback').innerHTML='';">Clear</button>
+    </div>
+    <div id="parseFeedback" style="margin-top:10px;"></div>
+  </div>
 
   <div class="card">
     <div class="section-title">Territory and hours</div>
@@ -167,6 +186,7 @@
 <script>
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 let customHolidays = [], selectedHolidays = new Set(), holidayOverrides = {}, dayOverrides = {};
+let lastGeneratedLines = []; // the schedule lines from the most recent Generate, for clean copying
 
 // All dates hardcoded and verified against official sources for accuracy.
 // Observed dates used where holiday falls on a weekend.
@@ -182,6 +202,7 @@ const HOLIDAYS = {
       { month: 9,  name: "Columbus Day",                 date: "Mon 12 Oct 2026",  iso: "2026-10-12" },
       { month: 10, name: "Veterans Day",                 date: "Wed 11 Nov 2026",  iso: "2026-11-11" },
       { month: 10, name: "Thanksgiving",                 date: "Thu 26 Nov 2026",  iso: "2026-11-26" },
+      { month: 10, name: "Thanksgiving and Black Friday", date: "Thu 26–Fri 27 Nov 2026", iso: "2026-11-26", presetEnd: "2026-11-27" },
       { month: 11, name: "Christmas",                    date: "Fri 25 Dec 2026",  iso: "2026-12-25" },
       { month: 0,  name: "New Year",                     date: "Fri 1 Jan 2027",   iso: "2027-01-01" },
     ],
@@ -195,6 +216,7 @@ const HOLIDAYS = {
       { month: 9,  name: "Columbus Day",                 date: "Mon 11 Oct 2027",  iso: "2027-10-11" },
       { month: 10, name: "Veterans Day",                 date: "Thu 11 Nov 2027",  iso: "2027-11-11" },
       { month: 10, name: "Thanksgiving",                 date: "Thu 25 Nov 2027",  iso: "2027-11-25" },
+      { month: 10, name: "Thanksgiving and Black Friday", date: "Thu 25–Fri 26 Nov 2027", iso: "2027-11-25", presetEnd: "2027-11-26" },
       { month: 11, name: "Christmas",                    date: "Fri 24 Dec 2027 (observed)", iso: "2027-12-24" },
       { month: 0,  name: "New Year",                     date: "Sat 1 Jan 2028",   iso: "2028-01-01" },
     ]
@@ -265,7 +287,16 @@ function getAllHolidays() {
   const t = document.getElementById('territory').value;
   const h2026 = HOLIDAYS[t][2026].map(h => ({...h, year: 2026}));
   const h2027 = show2027() ? HOLIDAYS[t][2027].map(h => ({...h, year: 2027})) : [];
-  return [...h2026, ...h2027, ...customHolidays];
+  // Custom holidays carry an iso; derive year from it so they group and sort correctly.
+  const custom = customHolidays.map(h => ({...h, year: h.year || (h.iso ? parseInt(h.iso.slice(0,4)) : undefined)}));
+  const all = [...h2026, ...h2027, ...custom];
+  // Sort chronologically by iso date. Entries without an iso sink to the end.
+  all.sort((a, b) => {
+    if (!a.iso) return 1;
+    if (!b.iso) return -1;
+    return a.iso < b.iso ? -1 : a.iso > b.iso ? 1 : 0;
+  });
+  return all;
 }
 
 function initDays() {
@@ -331,7 +362,7 @@ function getCloseForDay(i) { return fmtTime((dayOverrides[i] && dayOverrides[i].
 function getOpenForDay(i) { return fmtTime((dayOverrides[i] && dayOverrides[i].open) || getDefaultOpen()); }
 
 function loadHolidays() { selectedHolidays.clear(); holidayOverrides = {}; renderHolidays(); }
-function getHolidayKey(h) { return h.iso || h.name; }
+function getHolidayKey(h) { return (h.iso || '') + '|' + h.name; }
 
 function renderHolidays() {
   const allHolidays = getAllHolidays();
@@ -352,7 +383,8 @@ function renderHolidays() {
     const key = getHolidayKey(h), isSelected = selectedHolidays.has(key);
     const override = holidayOverrides[key] || {};
     const startVal = override.start || h.iso || '';
-    const endVal = override.end || '', isRange = override.isRange || false;
+    const endVal = override.end || h.presetEnd || '';
+    const isRange = override.isRange !== undefined ? override.isRange : !!h.presetEnd;
 
     const item = document.createElement('div');
     item.className = 'holiday-item' + (isSelected ? ' selected' : '');
@@ -472,13 +504,15 @@ function generate() {
   selected.forEach(h => {
     const key=getHolidayKey(h), override=holidayOverrides[key]||{};
     const startIso = override.start || h.iso;
-    const endIso = override.isRange ? (override.end||null) : null;
+    // Range from a manual override, or a built-in preset (e.g. Thanksgiving + Black Friday)
+    const endIso = override.isRange ? (override.end||null) : (h.presetEnd || null);
     if (!startIso) { warnings.push(h.name); lines.push(`${h.name}: [date needed — please enter manually]`); return; }
     const uploadDay=prevWorkingDay(startIso), revertDay=nextWorkingDay(endIso||startIso);
     const ui=(uploadDay.getDay()+6)%7, ri=(revertDay.getDay()+6)%7;
     lines.push(`${h.name}: upload ${fmtDate(uploadDay)} at ${getCloseForDay(ui)} ; play 24/7 ; revert ${fmtDate(revertDay)} at ${getOpenForDay(ri)}`);
   });
 
+  lastGeneratedLines = lines.slice();
   const out = document.getElementById('output');
   out.textContent = lines.join('\n');
   if (warnings.length) {
@@ -489,13 +523,291 @@ function generate() {
   }
 }
 
-function copyOutput() {
-  const text = document.getElementById('output').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btns = document.querySelectorAll('.btn-row .btn');
-    btns.forEach(b => { if (b.textContent.includes('Copy')) { b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy to clipboard',1500); }});
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function flashCopied() {
+  document.querySelectorAll('.btn-row .btn').forEach(b => {
+    if (b.textContent.includes('Copy')) { b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy to clipboard',1500); }
   });
 }
+
+function copyOutput() {
+  // Build from the stored lines when available (clean data); otherwise fall back
+  // to reading the box. Use CRLF for the plain-text flavour — Windows apps like
+  // Outlook keep line breaks reliably with \r\n but sometimes collapse bare \n.
+  const lines = lastGeneratedLines.length
+    ? lastGeneratedLines.slice()
+    : (document.getElementById('output').textContent || '').split('\n');
+  if (!lines.length || (lines.length === 1 && !lines[0].trim())) return;
+
+  const plain = lines.join('\r\n');
+  // HTML flavour with real <br> breaks, so rich editors (Outlook, Word, Docs,
+  // Gmail) paste genuine separate lines rather than one run-on line.
+  const html = '<div>' + lines.map(l => escapeHtml(l) || '<br>').join('</div><div>') + '</div>';
+
+  // Preferred path: write both flavours so each target app picks the one it
+  // handles best. Guard for older browsers that lack ClipboardItem.
+  if (navigator.clipboard && window.ClipboardItem) {
+    const item = new ClipboardItem({
+      'text/plain': new Blob([plain], { type: 'text/plain' }),
+      'text/html':  new Blob([html],  { type: 'text/html'  })
+    });
+    navigator.clipboard.write([item]).then(flashCopied).catch(() => {
+      // Fall back to plain-text-only write if the rich write is blocked.
+      navigator.clipboard.writeText(plain).then(flashCopied).catch(fallbackCopy.bind(null, plain));
+    });
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(plain).then(flashCopied).catch(fallbackCopy.bind(null, plain));
+  } else {
+    fallbackCopy(plain);
+  }
+}
+
+// Last-resort copy for old browsers / non-secure contexts: a hidden textarea
+// preserves the newlines through execCommand('copy').
+function fallbackCopy(plain) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = plain;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    flashCopied();
+  } catch (e) { /* nothing more we can do */ }
+}
+
+// ---------------- Opening-hours parser ----------------
+// Rule-based, no AI. Parses common formats, fills day checkboxes + per-day times,
+// and flags anything it can't read confidently for manual review.
+
+const DAY_ALIASES = {
+  mon:0, monday:0, mo:0, mon_:0,
+  tue:1, tues:1, tuesday:1, tu:1, tuesd:1,
+  wed:2, weds:2, wednesday:2, we:2, wednes:2, wednesd:2,
+  thu:3, thur:3, thurs:3, thursday:3, th:3, thursd:3,
+  fri:4, friday:4, fr:4, frid:4,
+  sat:5, saturday:5, sa:5, saturd:5,
+  sun:6, sunday:6, su:6, sund:6
+};
+
+// Parse a single time token -> "HH:MM" 24h, or null.
+function parseTimeToken(raw) {
+  if (!raw) return null;
+  let s = raw.trim().toLowerCase();
+  s = s.replace(/o'?clock/g, '').trim();      // "9 o'clock" -> "9"
+  s = s.replace(/hrs?\b|\bhours?\b/g, '').trim(); // "0900hrs" -> "0900" (no \b before h: digit-letter isn't a boundary)
+  if (s === 'noon' || s === '12noon' || s === '12 noon' || s === 'midday' || s === 'mid-day') return '12:00';
+  if (s === 'midnight') return '00:00';
+  // capture am/pm (allow spaces and dots: "a.m.", "p m")
+  const ap = /(a\.?\s?m\.?|p\.?\s?m\.?)/.exec(s);
+  let mer = null;
+  if (ap) { mer = ap[1].replace(/[^ap]/g,'')[0]; s = s.replace(ap[0], '').trim(); }
+  // normalise separators: 9.30, 9:30, 9,30 all -> 9:30
+  s = s.replace(/[.,\uFF1A]/g, ':');
+  let h, m = 0;
+  let mtch;
+  if ((mtch = /^(\d{1,2}):(\d{2})$/.exec(s))) { h = +mtch[1]; m = +mtch[2]; }
+  else if ((mtch = /^(\d{1,2})$/.exec(s))) { h = +mtch[1]; m = 0; }
+  else if ((mtch = /^(\d{3,4})$/.exec(s))) { const n = mtch[1].padStart(4,'0'); h = +n.slice(0,2); m = +n.slice(2); }
+  else return null;
+  if (mer === 'p' && h < 12) h += 12;
+  if (mer === 'a' && h === 12) h = 0;
+  if (h > 24 || m > 59) return null;
+  if (h === 24) h = 0;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+// Expand a day expression like "mon-fri", "sat & sun", "mon/wed/fri",
+// "mon-wed and fri" -> array of indices, or null.
+function parseDayExpr(raw) {
+  let s = raw.trim().toLowerCase()
+    .replace(/\bfrom\b/g,' ')
+    .replace(/\s*(?:\band\b|&|\+|\/)\s*/g, ',')   // and / & / + / slash -> comma
+    .replace(/\s*,\s*/g, ',')
+    .replace(/^,|,$/g,'')
+    .trim();
+
+  // Look up a day token, tolerating a trailing plural 's' ("sundays" -> sun).
+  const dayIndex = (tok) => {
+    if (DAY_ALIASES[tok] !== undefined) return DAY_ALIASES[tok];
+    const sing = tok.replace(/s$/,'');
+    return DAY_ALIASES[sing];
+  };
+
+  // Helper: expand a single "a-b" range into indices, or return null.
+  const expandRange = (str) => {
+    const range = /^([a-z]+)\s*(?:-|–|—|to|through|thru|till?|until|\.\.\.?)\s*([a-z]+)$/.exec(str.trim());
+    if (range && dayIndex(range[1]) !== undefined && dayIndex(range[2]) !== undefined) {
+      let a = dayIndex(range[1]), b = dayIndex(range[2]), out = [], i = a;
+      for (let g = 0; g < 8; g++) { out.push(i); if (i === b) break; i = (i + 1) % 7; }
+      return out;
+    }
+    return null;
+  };
+
+  // whole-phrase keywords
+  if (/\b(every\s*day|everyday|daily|all week|7\s*days|7\/7)\b/.test(s)) return [0,1,2,3,4,5,6];
+  if (/^weekdays?$/.test(s)) return [0,1,2,3,4];
+  if (/^weekends?$/.test(s)) return [5,6];
+
+  // Split on commas, then each part is either a range or a single day (or a keyword).
+  const parts = s.split(',').map(p => p.trim()).filter(Boolean);
+  const set = new Set();
+  for (const p of parts) {
+    if (/^weekdays?$/.test(p)) { [0,1,2,3,4].forEach(d=>set.add(d)); continue; }
+    if (/^weekends?$/.test(p)) { [5,6].forEach(d=>set.add(d)); continue; }
+    const r = expandRange(p);
+    if (r) { r.forEach(d => set.add(d)); continue; }
+    const di = dayIndex(p);
+    if (di !== undefined) { set.add(di); continue; }
+    return null; // any unrecognised part -> fail the whole expression
+  }
+  const out = [...set].sort((a,b)=>a-b);
+  return out.length ? out : null;
+}
+
+function parseHours() {
+  const text = document.getElementById('pasteBox').value;
+  const fb = document.getElementById('parseFeedback');
+  if (!text.trim()) { fb.innerHTML = '<span style="font-size:12px;color:var(--text-tertiary);">Nothing to parse.</span>'; return; }
+
+  // result[dayIndex] = {open, close} or 'closed'; undefined = not mentioned
+  const result = {};
+  const warnings = [];
+  const notes = [];
+
+  // Strip common boilerplate lines/prefixes that carry no schedule data.
+  let cleaned = text
+    .replace(/\b(our |the )?(opening |business |office |trading |store )?hours?( of business)?\s*(are|:)?/gi, ' ')
+    .replace(/\bwe(?:'re| are)?\s+open\b/gi, ' ')
+    .replace(/\bwe(?:'re| are)?\s+closed\b/gi, ' closed ')
+    .replace(/\bopen\b(?=\s|$)/gi, ' ');
+
+  // Split into candidate segments. Break on newlines and semicolons always;
+  // also break on a comma ONLY when it separates day-rules (comma followed by
+  // something that looks like a day word), so "9,00" decimals stay intact.
+  let raw = cleaned.split(/[\n;]+/);
+  const segments = [];
+  const dayWord = 'mon|tue|wed|thu|fri|sat|sun|weekday|weekend|daily|every|closed';
+  raw.forEach(chunk => {
+    // split on ", <dayword>" boundaries
+    const pieces = chunk.split(new RegExp('\\s*,\\s*(?=(?:' + dayWord + ')[a-z]*\\b)', 'i'));
+    pieces.forEach(p => { if (p.trim()) segments.push(p.trim()); });
+  });
+
+  for (let seg of segments) {
+    // strip trailing punctuation/period noise
+    seg = seg.replace(/[.\s]+$/,'').trim();
+    if (!seg) continue;
+    const low = seg.toLowerCase();
+
+    let dayPart = null, timePart = null;
+    const colonSplit = seg.split(/:(.+)/);
+    if (colonSplit.length >= 2 && !/\d/.test(colonSplit[0])) {
+      dayPart = colonSplit[0]; timePart = colonSplit[1];
+    } else {
+      const dm = /^([a-z\s,&+\/\-–—]+?)\s+(?:from\s+)?(\d.*|closed|noon.*|midday.*|midnight.*|by appointment.*|by arrangement.*)$/i.exec(seg);
+      if (dm) { dayPart = dm[1]; timePart = dm[2]; }
+      else if (/closed/i.test(low)) { dayPart = seg.replace(/closed/i,''); timePart = 'closed'; }
+    }
+
+    if (!dayPart || !dayPart.trim()) { warnings.push(seg); continue; }
+    const days = parseDayExpr(dayPart);
+    if (!days) { warnings.push(seg); continue; }
+
+    const tLow = (timePart||'').trim().toLowerCase();
+    if (/closed/.test(tLow)) { days.forEach(d => result[d] = 'closed'); continue; }
+    if (/appointment|by arrangement/.test(tLow)) { days.forEach(d => result[d] = 'closed'); notes.push('"'+seg.trim()+'" treated as closed (by appointment).'); continue; }
+
+    // Extract time tokens. Matches: 9, 9:30, 9.30, 9,30, 0900, with optional
+    // am/pm (spaced or dotted), plus hrs/o'clock suffixes and noon/midday/midnight.
+    const timeMatches = tLow.match(/\d{3,4}\s*(?:a\.?\s?m\.?|p\.?\s?m\.?)?(?:\s?hrs?)?|\d{1,2}(?:[:.,]\d{2})?\s*(?:a\.?\s?m\.?|p\.?\s?m\.?)?(?:\s?o'?clock)?(?:\s?hrs?)?|\bnoon\b|\bmidday\b|\bmid-day\b|\bmidnight\b/g);
+    const cleanMatches = timeMatches ? timeMatches.map(t=>t.trim()).filter(Boolean) : [];
+    if (cleanMatches.length < 2) { warnings.push(seg); continue; }
+    // More than two times on one day usually means a split shift (e.g. "9-12, 2-5"),
+    // which this tool can't represent. Take the widest span but flag it for review.
+    let open = parseTimeToken(cleanMatches[0]);
+    let close = parseTimeToken(cleanMatches[cleanMatches.length - 1]);
+    const isSplitShift = cleanMatches.length > 2;
+    if (!open || !close) { warnings.push(seg); continue; }
+    const lastTok = cleanMatches[cleanMatches.length - 1];
+    const closeHasMer = /a\.?\s?m|p\.?\s?m|noon|midday|midnight/.test(lastTok);
+    // Bare 12-hour times: if close is at or before open numerically, assume PM close
+    // (e.g. "9-5" = 9am-5pm), unless the input looked like 24-hour.
+    const looks24h = /^\d{3,4}/.test(cleanMatches[0].trim()) || parseInt(open.slice(0,2)) > 12 || parseInt(close.slice(0,2)) > 12;
+    if (!closeHasMer && !looks24h) {
+      const oh = parseInt(open.slice(0,2)), ch = parseInt(close.slice(0,2));
+      if (ch < 12 && ch <= oh) { close = String(ch+12).padStart(2,'0') + close.slice(2); }
+    }
+    if (open > close) { notes.push('Check "'+seg.trim()+'" — start time is after end time.'); }
+    if (isSplitShift) {
+      notes.push('"'+seg.trim()+'" looks like a split shift — set to the full span ('+
+        fmtTime(open)+'–'+fmtTime(close)+'). Adjust manually if needed.');
+    }
+    days.forEach(d => result[d] = { open, close });
+  }
+
+  const touched = Object.keys(result);
+  if (touched.length === 0) {
+    fb.innerHTML = '<div class="warning-note">Couldn\'t read any days from that. Try one day-rule per line, e.g. "Mon-Fri 9am-5pm".</div>';
+    return;
+  }
+
+  applyParsedHours(result);
+
+  // build feedback
+  let html = '<div style="font-size:12px;color:var(--text-secondary);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:8px 10px;background:var(--bg-secondary);">';
+  html += '<strong style="color:var(--text);">Applied:</strong><br>';
+  DAYS.forEach((d,i) => {
+    if (result[i] === 'closed') html += d + ': closed<br>';
+    else if (result[i]) html += d + ': ' + fmtTime(result[i].open) + ' – ' + fmtTime(result[i].close) + '<br>';
+  });
+  const untouched = DAYS.map((d,i)=>result[i]===undefined?d:null).filter(Boolean);
+  if (untouched.length) html += '<span style="color:var(--text-tertiary);">Not mentioned (left unchanged): '+untouched.join(', ')+'</span><br>';
+  html += '</div>';
+  notes.forEach(n => { html += '<div class="warning-note">'+n+'</div>'; });
+  if (warnings.length) {
+    html += '<div class="warning-note">Couldn\'t parse these — please set manually below:<br>'+warnings.map(w=>'• '+w).join('<br>')+'</div>';
+  }
+  fb.innerHTML = html;
+}
+
+// Apply parsed result to the day checkboxes and per-day override system.
+function applyParsedHours(result) {
+  // turn on per-day mode so distinct times show
+  const distinct = new Set();
+  DAYS.forEach((d,i)=>{ if (result[i] && result[i] !== 'closed') distinct.add(result[i].open+'|'+result[i].close); });
+  const needsPerDay = distinct.size > 1;
+
+  DAYS.forEach((d, i) => {
+    if (result[i] === undefined) return; // leave unchanged
+    const cb = document.getElementById('day-'+i);
+    if (result[i] === 'closed') { cb.checked = false; delete dayOverrides[i]; }
+    else {
+      cb.checked = true;
+      dayOverrides[i] = { open: result[i].open, close: result[i].close };
+    }
+  });
+
+  // if all open days share the same hours, set the defaults instead of per-day
+  if (!needsPerDay && distinct.size === 1) {
+    const [open, close] = [...distinct][0].split('|');
+    document.getElementById('defaultOpen').value = open;
+    document.getElementById('defaultClose').value = close;
+    dayOverrides = {};
+    document.getElementById('perDayToggle').checked = false;
+    togglePerDay();
+  } else if (needsPerDay) {
+    document.getElementById('perDayToggle').checked = true;
+    togglePerDay();
+  }
+  renderPerDay();
+}
+// ------------------------------------------------------
 
 initDays();
 renderHolidays();
