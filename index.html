@@ -419,7 +419,12 @@ function renderHolidays() {
       const startInput = document.createElement('input');
       startInput.type = 'date'; startInput.value = startVal;
       startInput.onclick = e => e.stopPropagation();
-      startInput.onchange = e => { if (!holidayOverrides[key]) holidayOverrides[key]={}; holidayOverrides[key].start=e.target.value; holidayOverrides[key].isRange=isRange; };
+      startInput.onchange = e => {
+        if (!holidayOverrides[key]) holidayOverrides[key]={};
+        holidayOverrides[key].start = e.target.value;
+        holidayOverrides[key].isRange = isRange;
+        if (isRange && !holidayOverrides[key].end) holidayOverrides[key].end = endVal || '';
+      };
       editorRow.appendChild(startLabel); editorRow.appendChild(startInput);
       if (isRange) {
         const endLabel = document.createElement('label'); endLabel.textContent = 'To';
@@ -433,9 +438,14 @@ function renderHolidays() {
       toggleBtn.className = 'range-toggle'; toggleBtn.textContent = isRange ? 'Single day' : '+ Date range';
       toggleBtn.onclick = e => {
         e.stopPropagation();
-        if (!holidayOverrides[key]) holidayOverrides[key]={start:startVal};
-        holidayOverrides[key].isRange = !isRange;
-        if (!isRange) holidayOverrides[key].end='';
+        const nowRange = !isRange;
+        if (!holidayOverrides[key]) holidayOverrides[key] = {};
+        holidayOverrides[key].start = startVal;
+        holidayOverrides[key].isRange = nowRange;
+        // Turning a range ON: seed the end from whatever the editor was showing
+        // (a preset end like Black Friday, or the start as a sensible default).
+        // Turning it OFF: clear the end so single-day generates correctly.
+        holidayOverrides[key].end = nowRange ? (endVal || startVal) : '';
         renderHolidays();
       };
       editorRow.appendChild(toggleBtn); editor.appendChild(editorRow);
@@ -503,9 +513,14 @@ function generate() {
   const lines=[], warnings=[];
   selected.forEach(h => {
     const key=getHolidayKey(h), override=holidayOverrides[key]||{};
+    // Resolve whether this holiday is a range and what its end date is.
+    // An explicit user toggle (override.isRange defined) always wins — including
+    // collapsing a preset range like Thanksgiving+Black Friday down to a single day.
+    // The built-in presetEnd only applies when the user hasn't toggled.
+    const isRange = override.isRange !== undefined ? override.isRange : !!h.presetEnd;
+    let endIso = null;
+    if (isRange) endIso = override.end || (override.isRange === undefined ? h.presetEnd : null) || null;
     const startIso = override.start || h.iso;
-    // Range from a manual override, or a built-in preset (e.g. Thanksgiving + Black Friday)
-    const endIso = override.isRange ? (override.end||null) : (h.presetEnd || null);
     if (!startIso) { warnings.push(h.name); lines.push(`${h.name}: [date needed — please enter manually]`); return; }
     const uploadDay=prevWorkingDay(startIso), revertDay=nextWorkingDay(endIso||startIso);
     const ui=(uploadDay.getDay()+6)%7, ri=(revertDay.getDay()+6)%7;
